@@ -18,6 +18,8 @@ public class EnUsLangGen extends LanguageProvider {
         this.add(ItemSetup.HELMET_MINERS.get(), "Miner's Helmet");
         this.add(ItemSetup.HELMET_MINERS_ULTRA.get(), "Ultra Miner's Helmet");
 
-        this.add("itemGroup.vfl.main", "Vulkan's Flashlights");
+        this.add("itemGroup.vfl.main", "Vulcan's Flashlights");
+        this.add("key.vfl.toggle_helmet", "Toggle Miner's Helmet Flashlight");
+        this.add("key.vfl.category", "Vulcan's Flashlights");
     }
 }

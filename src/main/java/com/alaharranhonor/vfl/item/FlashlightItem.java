@@ -4,6 +4,7 @@ import com.alaharranhonor.vfl.ModRef;
 import com.alaharranhonor.vfl.capability.Flashlight;
 import com.alaharranhonor.vfl.capability.IFlashlight;
 import com.alaharranhonor.vfl.registry.CapabilitySetup;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -37,14 +38,18 @@ public class FlashlightItem extends Item {
     @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         pStack.getCapability(CapabilitySetup.FLASHLIGHT).ifPresent(flashlight -> {
-            pTooltipComponents.add(Component.literal(String.format("Battery: %d%%", (int) (flashlight.getBattery() * 100))));
+            pTooltipComponents.add(Component.literal(String.format("Battery: %d%%", (int) (flashlight.getBattery() * 100))).withStyle(ChatFormatting.GRAY));
         });
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
         ItemStack held = pPlayer.getItemInHand(pUsedHand);
-        held.getCapability(CapabilitySetup.FLASHLIGHT).ifPresent(IFlashlight::toggle);
+        held.getCapability(CapabilitySetup.FLASHLIGHT).ifPresent(flashlight -> {
+            if (flashlight.getBattery() > 0) {
+                flashlight.toggle();
+            }
+        });
         return InteractionResultHolder.sidedSuccess(held, pLevel.isClientSide);
     }
 
@@ -60,19 +65,8 @@ public class FlashlightItem extends Item {
                     int charge = flashlight.getCharge();
                     charge--;
                     flashlight.setCharge(charge);
-                    if (charge == 0) {
+                    if (charge <= 0) {
                         flashlight.setActive(false);
-                    }
-                }
-            }
-
-            if (pLevel.isClientSide()) {
-                Minecraft.getInstance().gameRenderer.shutdownEffect();
-                if (pIsSelected && flashlight.isActive()) {
-                    float battery = flashlight.getBattery();
-                    // TODO use quadratic interpolation
-                    if (battery > 0.15 || pLevel.random.nextFloat() < (0.85 + battery)) {
-                        Minecraft.getInstance().gameRenderer.loadEffect(ModRef.res("shaders/post/flash.json"));
                     }
                 }
             }

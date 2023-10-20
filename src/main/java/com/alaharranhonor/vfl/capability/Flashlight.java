@@ -1,5 +1,6 @@
 package com.alaharranhonor.vfl.capability;
 
+import com.alaharranhonor.vfl.ModConfigs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -12,9 +13,6 @@ public class Flashlight implements IFlashlight {
     private static final String ACTIVE_TAG = "Active";
     private static final String CHARGE_TAG = "Charge";
 
-    public static final int MAX_BATTERY = 8_400;
-    public static final int MAX_BATTERY_ULTRA = 42_000;
-
     private final ItemStack stack;
     private final int maxCharge;
     private final Ingredient repairItem;
@@ -24,7 +22,7 @@ public class Flashlight implements IFlashlight {
 
     public Flashlight(ItemStack stack, boolean ultra) {
         this.stack = stack;
-        this.maxCharge = ultra ? MAX_BATTERY_ULTRA : MAX_BATTERY;
+        this.maxCharge = ultra ? ModConfigs.ultraBatteryLife.get() : ModConfigs.batteryLife.get();
         this.repairItem = Ingredient.of(ultra ? Items.REDSTONE_BLOCK : Items.REDSTONE);
 
         this.charge = this.maxCharge;

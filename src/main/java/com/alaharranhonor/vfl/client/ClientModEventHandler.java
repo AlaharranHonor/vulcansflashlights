@@ -2,9 +2,11 @@ package com.alaharranhonor.vfl.client;
 
 import com.alaharranhonor.vfl.ModRef;
 import com.alaharranhonor.vfl.client.model.HelmetMinersModel;
+import com.alaharranhonor.vfl.client.registry.KeybindSetup;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -17,5 +19,8 @@ public class ClientModEventHandler {
         event.registerLayerDefinition(HelmetMinersModel.LAYER_LOCATION, HelmetMinersModel::createBodyLayer);
     }
 
-
+    @SubscribeEvent
+    public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+        KeybindSetup.init(event::register);
+    }
 }
