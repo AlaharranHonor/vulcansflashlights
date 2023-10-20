@@ -1,11 +1,10 @@
 package com.alaharranhonor.vfl.datagen.server;
 
+import com.alaharranhonor.vfl.ModRef;
 import com.alaharranhonor.vfl.registry.ItemSetup;
+import com.alaharranhonor.vfl.registry.RecipeSetup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.*;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.Tags;
@@ -63,5 +62,7 @@ public class RecipesGen extends RecipeProvider {
             .group("vfl")
             .unlockedBy("has_flashlight_ultra", has(ItemSetup.FLASHLIGHT_ULTRA.get()))
             .save(pWriter);
+
+        SpecialRecipeBuilder.special(RecipeSetup.CHARGE_RECIPE_SERIALIZER.get()).save(pWriter, ModRef.res("charging").toString());
     }
 }
