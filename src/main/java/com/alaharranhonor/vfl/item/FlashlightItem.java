@@ -6,9 +6,11 @@ import com.alaharranhonor.vfl.capability.IFlashlight;
 import com.alaharranhonor.vfl.registry.CapabilitySetup;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -63,7 +65,8 @@ public class FlashlightItem extends Item {
             if (pIsSelected) {
                 if (flashlight.isActive()) {
                     int charge = flashlight.getCharge();
-                    charge--;
+                    int drain = Flashlight.getChargeDrain(pLevel, pEntity);
+                    charge -= drain;
                     flashlight.setCharge(charge);
                     if (charge <= 0) {
                         flashlight.setActive(false);

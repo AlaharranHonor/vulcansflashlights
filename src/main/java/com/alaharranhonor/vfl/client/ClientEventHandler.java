@@ -1,13 +1,15 @@
 package com.alaharranhonor.vfl.client;
 
 
-import com.alaharranhonor.vfl.ModConfigs;
+import com.alaharranhonor.vfl.capability.Flashlight;
+import com.alaharranhonor.vfl.config.ModConfigs;
 import com.alaharranhonor.vfl.ModRef;
 import com.alaharranhonor.vfl.client.registry.KeybindSetup;
 import com.alaharranhonor.vfl.network.PacketHandler;
 import com.alaharranhonor.vfl.network.ServerboundToggleMinersFlashlight;
 import com.alaharranhonor.vfl.registry.CapabilitySetup;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -47,11 +49,35 @@ public class ClientEventHandler {
             .ifPresent(flashlight -> {
                 if (flashlight.isActive()) {
                     float battery = flashlight.getBattery();
+                    double flicker = Flashlight.getFlicker(level, player);
                     // TODO use quadratic interpolation
-                    if (!ModConfigs.enableFlicker.get() || battery > 0.15 || level.random.nextFloat() < (0.85 + battery)) { // Flicker
-                        Minecraft.getInstance().gameRenderer.loadEffect(ModRef.res("shaders/post/flash.json"));
+                    if (!ModConfigs.enableFlicker.get()) {
+                        flashShader();
+                        return;
+                    }
+
+                    if (flicker == 0 && battery > 0.15) {
+                        flashShader();
+                        return;
+                    }
+
+                    double flashChance = 0.85f;
+                    if (battery <= 0.15) {
+                        flashChance += battery;
+                    }
+                    if (flicker > 0) {
+                        flashChance /= (1 + (flicker - 1) * 0.1);
+                    }
+                    if (level.random.nextFloat() < flashChance) {
+                        flashShader();
+                        return;
                     }
                 }
             });
+    }
+
+    private static void flashShader() {
+        GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
+        gameRenderer.loadEffect(ModRef.res("shaders/post/flash.json"));
     }
 }
