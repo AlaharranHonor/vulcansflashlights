@@ -57,12 +57,16 @@ public class FlashlightItem extends Item {
 
     @Override
     public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
+        if (!pIsSelected && pEntity instanceof Player player) {
+            pIsSelected = player.getOffhandItem() == pStack;
+        }
+        boolean selected = pIsSelected;
         pStack.getCapability(CapabilitySetup.FLASHLIGHT).ifPresent(flashlight -> {
-            if (flashlight.isActive() && !pIsSelected) {
+            if (flashlight.isActive() && (!selected)) {
                 flashlight.setActive(false);
             }
 
-            if (pIsSelected) {
+            if (selected) {
                 if (flashlight.isActive()) {
                     int charge = flashlight.getCharge();
                     int drain = Flashlight.getChargeDrain(pLevel, pEntity);

@@ -33,7 +33,7 @@ public class ChargeRecipe extends CustomRecipe {
                 continue;
             }
 
-            if (!repairStack.isEmpty()) return false;
+            if (!repairStack.isEmpty()) continue;
             repairStack = slotStack;
         }
 
