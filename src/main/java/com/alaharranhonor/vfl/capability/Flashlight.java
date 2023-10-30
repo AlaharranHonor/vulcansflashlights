@@ -20,6 +20,8 @@ public class Flashlight implements IFlashlight {
     private final ItemStack stack;
     private final int maxCharge;
     private final Ingredient repairItem;
+    private float maxDistance;
+    private float strength;
 
     private boolean active;
     private int charge;
@@ -28,6 +30,8 @@ public class Flashlight implements IFlashlight {
         this.stack = stack;
         this.maxCharge = ultra ? ModConfigs.ultraBatteryLife.get() : ModConfigs.batteryLife.get();
         this.repairItem = Ingredient.of(ultra ? Items.REDSTONE_BLOCK : Items.REDSTONE);
+        this.maxDistance = ultra ? 25 : 10;
+        this.strength = ultra ? 1.5f : 0.5f;
 
         this.charge = this.maxCharge;
         this.load(this.stack.getOrCreateTagElement(FLASHLIGHT_TAG));
@@ -73,6 +77,16 @@ public class Flashlight implements IFlashlight {
     @Override
     public Ingredient repairItem() {
         return this.repairItem;
+    }
+
+    @Override
+    public float getMaxDistance() {
+        return this.maxDistance;
+    }
+
+    @Override
+    public float getStrength() {
+        return this.strength;
     }
 
     public CompoundTag save() {

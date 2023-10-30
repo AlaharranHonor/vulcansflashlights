@@ -14,4 +14,6 @@ public interface IFlashlight {
     int getMaxCharge();
     float getBattery();
     Ingredient repairItem();
+    float getMaxDistance();
+    float getStrength();
 }

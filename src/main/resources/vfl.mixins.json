@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "com.alaharranhonor.vfl.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "vfl.refmap.json",
+  "minVersion": "0.8",
+  "mixins": [
+  ],
+  "client": [
+    "LevelRendererMixin",
+    "PostChainAccessor"
+  ]
+}

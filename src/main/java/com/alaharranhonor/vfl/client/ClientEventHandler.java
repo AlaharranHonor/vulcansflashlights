@@ -6,16 +6,21 @@ import com.alaharranhonor.vfl.capability.IFlashlight;
 import com.alaharranhonor.vfl.config.ModConfigs;
 import com.alaharranhonor.vfl.ModRef;
 import com.alaharranhonor.vfl.client.registry.KeybindSetup;
+import com.alaharranhonor.vfl.mixins.PostChainAccessor;
 import com.alaharranhonor.vfl.network.PacketHandler;
 import com.alaharranhonor.vfl.network.ServerboundToggleMinersFlashlight;
 import com.alaharranhonor.vfl.registry.CapabilitySetup;
 import com.alaharranhonor.vfl.registry.FlashlightRenderTypes;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.PostPass;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
@@ -31,6 +36,9 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+
+import java.io.IOException;
+import java.util.List;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = ModRef.ID)
 public class ClientEventHandler {
@@ -100,9 +108,45 @@ public class ClientEventHandler {
         });
     }
 
-    //@SubscribeEvent
-    public static void renderLightInHand(RenderArmEvent event) {
+    public static PostChain flashlightEffect;
 
+    @SubscribeEvent
+    public static void renderShader(RenderLevelStageEvent event) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+            return;
+        }
+
+        if (flashlightEffect == null) {
+            try {
+                PostChain postChain = new PostChain(Minecraft.getInstance().textureManager, Minecraft.getInstance().getResourceManager(), Minecraft.getInstance().getMainRenderTarget(), ModRef.res("shaders/post/flash.json"));
+                postChain.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+                flashlightEffect = postChain;
+            } catch (IOException e) {
+                ModRef.LOGGER.error("Could not load flashlight shader.", e);
+            }
+        }
+
+        Tuple<ItemStack, Integer> active = getActiveFlashlightStack(Minecraft.getInstance().player);
+        ItemStack flashlightStack = active.getA();
+        int type = active.getB();
+
+        if (flashlightStack.isEmpty()) {
+            return;
+        }
+
+        IFlashlight flashlight = flashlightStack.getCapability(CapabilitySetup.FLASHLIGHT).orElse(null);
+        float maxDistance = flashlight.getMaxDistance();
+        float strength = flashlight.getStrength();
+
+        if (isFirstPerson() && flashlightEffect != null) {
+            List<PostPass> passes = ((PostChainAccessor) flashlightEffect).getPasses();
+            for (PostPass pass : passes) {
+                pass.getEffect().safeGetUniform("MaxDistance").set(maxDistance);
+                pass.getEffect().safeGetUniform("Strength").set(strength);
+                pass.getEffect().safeGetUniform("Offset").set(type == 2 ? 0.05f : 0f);
+            }
+            flashlightEffect.process(event.getPartialTick());
+        }
     }
 
     @SubscribeEvent
@@ -186,6 +230,6 @@ public class ClientEventHandler {
 
     private static void flashShader() {
         GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
-        gameRenderer.loadEffect(ModRef.res("shaders/post/flash.json"));
+        //gameRenderer.loadEffect(ModRef.res("shaders/post/flash.json"));
     }
 }
